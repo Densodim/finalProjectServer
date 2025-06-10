@@ -1,0 +1,169 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum QuestionType {
+  SHORT_TEXT
+  LONG_TEXT
+  MULTIPLE_CHOICE
+  CHECKBOXES
+  BROPDOWN
+  FILE_UPLOAD
+  EMAIL
+  NUMBER
+}
+
+model User {
+  id          Int        @id @default(autoincrement())
+  email       String     @unique
+  name        String
+  password    String
+  role        UserRole   @default(USER)
+  isActive    Boolean    @default(true)
+  lastLoginAt DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  form        Form[]
+  responses   Response[]
+  adminLog    AdminLog[]
+}
+
+model AdminLog {
+  id        String   @id @default(uuid())
+  action    String
+  details   String
+  admin     User     @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  adminId   Int
+  createdAt DateTime @default(now())
+  ipAddress String?
+  userAgent String?
+}
+
+model Response {
+  id          String   @id @default(uuid())
+  form        Form     @relation(fields: [formId], references: [id], onDelete: Cascade)
+  formId      String
+  user        User?    @relation(fields: [userId], references: [id])
+  userId      Int?
+  email       String?
+  submittedAt DateTime @default(now())
+  ipAdress    String?
+  userAgent   String?
+  answer      Answer[]
+  isSpam      Boolean  @default(false)
+}
+
+model Form {
+  id          String        @id @default(uuid())
+  title       String
+  description String?
+  isPublished Boolean       @default(false)
+  isDeleted   Boolean       @default(false)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  author      User          @relation(fields: [authorId], references: [id])
+  authorId    Int
+  questions   Question[]
+  responses   Response[]
+  settings    FormSettings?
+  category    Category?     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId  String?
+  tags        Tag[]
+}
+
+model FormSettings {
+  id               String    @id @default(uuid())
+  allowResponses   Boolean   @default(true)
+  collectEmails    Boolean   @default(false)
+  limitResponses   Int?
+  responseDeadLine DateTime?
+  requireLogin     Boolean   @default(false)
+  allowFileUpload  Boolean   @default(false)
+  maxFileSize      Int?
+  allowedFileTypes String[]
+  form             Form      @relation(fields: [formId], references: [id], onDelete: Cascade)
+  formId           String    @unique
+}
+
+model Question {
+  id          String              @id @default(uuid())
+  title       String
+  desctiption String?
+  type        QuestionType
+  isRequired  Boolean             @default(false)
+  order       Int
+  form        Form                @relation(fields: [formId], references: [id], onDelete: Cascade)
+  formId      String
+  options     Option[]
+  answers     Answer[]
+  validation  QuestionValidation?
+}
+
+model Option {
+  id         String   @id @default(uuid())
+  text       String
+  order      Int
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  questionId String
+  answer     Answer[]
+}
+
+model Answer {
+  id         String   @id @default(uuid())
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  questionId String
+  response   Response @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  responseId String
+  textAnswer String?
+  option     Option?  @relation(fields: [optionId], references: [id])
+  optionId   String?
+  fileUrl    String?
+  createdAt  DateTime @default(now())
+}
+
+model QuestionValidation {
+  id            String   @id @default(uuid())
+  question      Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  questionId    String   @unique
+  minLength     Int?
+  maxLength     Int?
+  pattern       String?
+  minValue      Int?
+  maxValue      Int?
+  customMessage String?
+}
+
+model Tag {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  forms     Form[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Category {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  forms       Form[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
