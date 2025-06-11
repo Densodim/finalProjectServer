@@ -7,18 +7,16 @@ async function bootstrap() {
   try {
     const app = await NestFactory.create(AppModule);
 
-    // Настройка CORS
     app.enableCors({
       origin: true,
       methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
       credentials: true,
     });
 
-    // Глобальный префикс API
     app.setGlobalPrefix("api");
 
     const document = SwaggerModule.createDocument(app, swaggerConfig);
-    SwaggerModule.setup("api", app, document, swaggerCustomOptions);
+    SwaggerModule.setup("api/swagger", app, document, swaggerCustomOptions);
 
     const port = process.env.PORT ?? 3001;
     await app.listen(port);

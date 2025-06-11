@@ -9,7 +9,7 @@ export class AppController {
   getHello() {
     return {
       message: "Welcome to Form API",
-      documentation: "/api",
+      documentation: "/api/swagger",
       version: "1.0.0",
     };
   }

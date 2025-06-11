@@ -46,7 +46,7 @@ model User {
 }
 
 model AdminLog {
-  id        String   @id @default(uuid())
+  id        Int      @id @default(autoincrement())
   action    String
   details   String
   admin     User     @relation(fields: [adminId], references: [id], onDelete: Cascade)
@@ -57,9 +57,9 @@ model AdminLog {
 }
 
 model Response {
-  id          String   @id @default(uuid())
+  id          Int      @id @default(autoincrement())
   form        Form     @relation(fields: [formId], references: [id], onDelete: Cascade)
-  formId      String
+  formId      Int
   user        User?    @relation(fields: [userId], references: [id])
   userId      Int?
   email       String?
@@ -71,7 +71,7 @@ model Response {
 }
 
 model Form {
-  id          String        @id @default(uuid())
+  id          Int           @id @default(autoincrement())
   title       String
   description String?
   isPublished Boolean       @default(false)
@@ -84,12 +84,12 @@ model Form {
   responses   Response[]
   settings    FormSettings?
   category    Category?     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  categoryId  String?
+  categoryId  Int?
   tags        Tag[]
 }
 
 model FormSettings {
-  id               String    @id @default(uuid())
+  id               Int       @id @default(autoincrement())
   allowResponses   Boolean   @default(true)
   collectEmails    Boolean   @default(false)
   limitResponses   Int?
@@ -99,49 +99,49 @@ model FormSettings {
   maxFileSize      Int?
   allowedFileTypes String[]
   form             Form      @relation(fields: [formId], references: [id], onDelete: Cascade)
-  formId           String    @unique
+  formId           Int       @unique
 }
 
 model Question {
-  id          String              @id @default(uuid())
+  id          Int                 @id @default(autoincrement())
   title       String
   desctiption String?
   type        QuestionType
   isRequired  Boolean             @default(false)
   order       Int
   form        Form                @relation(fields: [formId], references: [id], onDelete: Cascade)
-  formId      String
+  formId      Int
   options     Option[]
   answers     Answer[]
   validation  QuestionValidation?
 }
 
 model Option {
-  id         String   @id @default(uuid())
+  id         Int      @id @default(autoincrement())
   text       String
   order      Int
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  questionId String
+  questionId Int
   answer     Answer[]
 }
 
 model Answer {
-  id         String   @id @default(uuid())
+  id         Int      @id @default(autoincrement())
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  questionId String
+  questionId Int
   response   Response @relation(fields: [responseId], references: [id], onDelete: Cascade)
-  responseId String
+  responseId Int
   textAnswer String?
   option     Option?  @relation(fields: [optionId], references: [id])
-  optionId   String?
+  optionId   Int?
   fileUrl    String?
   createdAt  DateTime @default(now())
 }
 
 model QuestionValidation {
-  id            String   @id @default(uuid())
+  id            Int      @id @default(autoincrement())
   question      Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  questionId    String   @unique
+  questionId    Int      @unique
   minLength     Int?
   maxLength     Int?
   pattern       String?
@@ -151,7 +151,7 @@ model QuestionValidation {
 }
 
 model Tag {
-  id        String   @id @default(uuid())
+  id        Int      @id @default(autoincrement())
   name      String   @unique
   forms     Form[]
   createdAt DateTime @default(now())
@@ -159,7 +159,7 @@ model Tag {
 }
 
 model Category {
-  id          String   @id @default(uuid())
+  id          Int      @id @default(autoincrement())
   name        String   @unique
   description String?
   forms       Form[]
