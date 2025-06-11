@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
 } from '@nestjs/common';
@@ -19,37 +20,37 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  @ApiCreatedResponse({type: UserEntity})
+  @ApiCreatedResponse({ type: UserEntity })
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
 
   @Get()
-  @ApiOkResponse({type: UserEntity, isArray: true})
+  @ApiOkResponse({ type: UserEntity, isArray: true })
   findAll() {
     return this.usersService.findAll();
   }
 
   @Get(':id')
-  @ApiOkResponse({type: UserEntity})
-  findOne(@Param('id') id: number) {
+  @ApiOkResponse({ type: UserEntity })
+  findOne(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.findOne(+id);
   }
 
   @Patch(':id')
-  @ApiOkResponse({type: UserEntity})
-  update(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
+  @ApiOkResponse({ type: UserEntity })
+  update(@Param('id', ParseIntPipe) id: number, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(+id, updateUserDto);
   }
 
   @Delete(':id')
-  @ApiOkResponse({type: UserEntity})
-  remove(@Param('id') id: number) {
+  @ApiOkResponse({ type: UserEntity })
+  remove(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.remove(+id);
   }
 
   @Get('drafts')
-  @ApiOkResponse({type: UserEntity, isArray: true})
+  @ApiOkResponse({ type: UserEntity, isArray: true })
   findDrafts() {
     return this.usersService.findDrafts();
   }
