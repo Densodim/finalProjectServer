@@ -1,10 +1,12 @@
 import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {
+  ApiBadRequestResponse,
   ApiBearerAuth,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { UserEntity } from '../users/entities/user.entity';
 import { CreateUserDto } from '../users/dto/create-user.dto';
@@ -28,6 +30,7 @@ export class AuthController {
 
   @Post('login')
   @ApiOkResponse({ type: UserEntity })
+  @ApiBadRequestResponse({ description: 'Invalid credentials' })
   login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
   }
@@ -35,6 +38,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOkResponse({ type: UserEntity })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @Get('me')
   async me(@Req() req: { user: UserEntity }) {
     return this.usersService.findOne(req.user.id);
