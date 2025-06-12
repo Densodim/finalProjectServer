@@ -15,7 +15,10 @@ import { UsersService } from '../users/users.service';
 @Controller('auth')
 @ApiTags('Auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService, private readonly usersService: UsersService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly usersService: UsersService,
+  ) {}
 
   @Post('register')
   @ApiCreatedResponse({ type: UserEntity })
@@ -33,7 +36,7 @@ export class AuthController {
   @ApiBearerAuth()
   @ApiOkResponse({ type: UserEntity })
   @Get('me')
-  async me(@Req() req: any) {
+  async me(@Req() req: { user: UserEntity }) {
     return this.usersService.findOne(req.user.id);
   }
 }

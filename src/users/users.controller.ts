@@ -39,7 +39,10 @@ export class UsersController {
 
   @Patch(':id')
   @ApiOkResponse({ type: UserEntity })
-  update(@Param('id', ParseIntPipe) id: number, @Body() updateUserDto: UpdateUserDto) {
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
     return this.usersService.update(+id, updateUserDto);
   }
 
