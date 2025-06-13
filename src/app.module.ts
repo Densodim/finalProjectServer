@@ -7,10 +7,11 @@ import { AuthModule } from './auth/auth.module';
 import { FormModule } from './form/form.module';
 import { QuestionsModule } from './questions/questions.module';
 import { AnswerModule } from './answer/answer.module';
+import { ResponseModule } from './response/response.module';
 
 @Module({
   controllers: [AppController],
   providers: [AppService],
-  imports: [PrismaModule, UsersModule, AuthModule, FormModule, QuestionsModule, AnswerModule],
+  imports: [PrismaModule, UsersModule, AuthModule, FormModule, QuestionsModule, AnswerModule, ResponseModule],
 })
 export class AppModule {}

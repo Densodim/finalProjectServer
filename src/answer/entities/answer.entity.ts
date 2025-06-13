@@ -11,7 +11,7 @@ export class AnswerEntity implements Answer {
   @ApiProperty({ type: Date })
   createdAt: Date;
 
-  @ApiProperty({ type: Number })
+  @ApiProperty({ type: Number, required: false })
   questionId: number;
 
   @ApiProperty({ required: false, type: URL })
