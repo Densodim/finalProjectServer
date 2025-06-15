@@ -9,6 +9,7 @@ import { QuestionsModule } from './questions/questions.module';
 import { AnswerModule } from './answer/answer.module';
 import { ResponseModule } from './response/response.module';
 import { CategoryModule } from './category/category.module';
+import { TagsModule } from './tags/tags.module';
 
 @Module({
   controllers: [AppController],
@@ -22,6 +23,7 @@ import { CategoryModule } from './category/category.module';
     AnswerModule,
     ResponseModule,
     CategoryModule,
+    TagsModule,
   ],
 })
 export class AppModule {}

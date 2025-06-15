@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateFormDto } from './dto/create-form.dto';
 import { UpdateFormDto } from './dto/update-form.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { UpdateFormTagsDto } from './dto/update-form-tags.dto';
 
 @Injectable()
 export class FormService {
@@ -59,6 +60,30 @@ export class FormService {
         authorId: userId,
       },
       data: { isDeleted: true },
+    });
+  }
+
+  async addTags({ tagIds, formId }: UpdateFormTagsDto) {
+    return this.prisma.form.update({
+      where: { id: formId },
+      data: {
+        tags: {
+          connect: tagIds.map((id) => ({ id })),
+        },
+      },
+      include: { tags: true },
+    });
+  }
+
+  deleteTags({ formId, tagIds }: UpdateFormTagsDto) {
+    return this.prisma.form.update({
+      where: { id: formId },
+      data: {
+        tags: {
+          disconnect: tagIds.map((id) => ({ id })),
+        },
+      },
+      include: { tags: true },
     });
   }
 }

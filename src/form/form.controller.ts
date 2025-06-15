@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   Param,
   Patch,
   Post,
@@ -13,14 +14,17 @@ import { FormService } from './form.service';
 import { CreateFormDto } from './dto/create-form.dto';
 import { UpdateFormDto } from './dto/update-form.dto';
 import {
+  ApiBadRequestResponse,
   ApiBearerAuth,
   ApiCreatedResponse,
   ApiOkResponse,
+  ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { User } from '@prisma/client';
 import { FormEntity } from './entities/form.entity';
+import { UpdateFormTagsDto } from './dto/update-form-tags.dto';
 
 @Controller('form')
 @ApiTags('create Form')
@@ -67,6 +71,23 @@ export class FormController {
   @ApiOkResponse({ type: FormEntity })
   remove(@Param('id') id: string, @Req() req: RequestWithUser) {
     return this.formService.softDelete(+id, req.user.id);
+  }
+
+  @Post('tags/add')
+  @ApiOperation({ summary: 'Add tag' })
+  @ApiOkResponse({ description: 'Add tag' })
+  @HttpCode(200)
+  @ApiBadRequestResponse({ description: 'Tag already exists' })
+  addTags(@Body() updateTagDto: UpdateFormTagsDto) {
+    return this.formService.addTags(updateTagDto);
+  }
+
+  @Post('tags/remove')
+  @ApiOperation({ summary: 'Remove tag' })
+  @ApiOkResponse({ description: 'Remove tag' })
+  @ApiBadRequestResponse({ description: 'Invalid input data' })
+  removeTags(@Body() updateTagDto: UpdateFormTagsDto) {
+    return this.formService.deleteTags(updateTagDto);
   }
 }
 
