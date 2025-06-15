@@ -11,6 +11,7 @@ import { ResponseModule } from './response/response.module';
 import { CategoryModule } from './category/category.module';
 import { TagsModule } from './tags/tags.module';
 import { FormSettingsModule } from './form-settings/form-settings.module';
+import { QuestionValidationModule } from './question-validation/question-validation.module';
 
 @Module({
   controllers: [AppController],
@@ -26,6 +27,7 @@ import { FormSettingsModule } from './form-settings/form-settings.module';
     CategoryModule,
     TagsModule,
     FormSettingsModule,
+    QuestionValidationModule,
   ],
 })
 export class AppModule {}
