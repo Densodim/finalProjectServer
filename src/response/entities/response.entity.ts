@@ -25,6 +25,4 @@ export class ResponseEntity implements Response {
 
   @ApiProperty({ type: String })
   submittedAt: Date;
-
-
 }

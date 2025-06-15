@@ -8,10 +8,20 @@ import { FormModule } from './form/form.module';
 import { QuestionsModule } from './questions/questions.module';
 import { AnswerModule } from './answer/answer.module';
 import { ResponseModule } from './response/response.module';
+import { CategoryModule } from './category/category.module';
 
 @Module({
   controllers: [AppController],
   providers: [AppService],
-  imports: [PrismaModule, UsersModule, AuthModule, FormModule, QuestionsModule, AnswerModule, ResponseModule],
+  imports: [
+    PrismaModule,
+    UsersModule,
+    AuthModule,
+    FormModule,
+    QuestionsModule,
+    AnswerModule,
+    ResponseModule,
+    CategoryModule,
+  ],
 })
 export class AppModule {}
