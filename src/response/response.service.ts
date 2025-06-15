@@ -13,7 +13,7 @@ export class ResponseService {
   async submitForm(dto: CreateResponseDto) {
     await this.validateSubmitPayload(dto);
 
-    const response = this.prisma.response.create({
+    const response = await this.prisma.response.create({
       data: {
         ...dto,
         answer: {
@@ -31,15 +31,33 @@ export class ResponseService {
   }
 
   private async validateSubmitPayload(dto: CreateResponseDto) {
-    // Проверка формы
     const form = await this.prisma.form.findUnique({
       where: { id: dto.formId },
+      include: { settings: true },
     });
     if (!form) {
       throw new NotFoundException(`Form with id ${dto.formId} not found`);
     }
 
-    // Проверка пользователя
+    const setting = form.settings;
+
+    if (setting?.responseDeadLine && new Date() > setting.responseDeadLine) {
+      throw new BadRequestException('The deadline for this form has passed.');
+    }
+    if (setting?.requireLogin && !dto.userId) {
+      throw new BadRequestException(`Require Login requires ${dto.userId}`);
+    }
+    if (setting?.limitResponses) {
+      const responseCount = await this.prisma.response.count({
+        where: { formId: dto.formId },
+      });
+      if (responseCount > setting.limitResponses) {
+        throw new BadRequestException(
+          'The number of responses for this form has reached the limit.',
+        );
+      }
+    }
+
     if (dto.userId) {
       const user = await this.prisma.user.findUnique({
         where: { id: dto.userId },
@@ -49,7 +67,6 @@ export class ResponseService {
       }
     }
 
-    // Проверка каждого ответа (вопроса и опции)
     for (const answer of dto.answer) {
       const question = await this.prisma.question.findUnique({
         where: { id: answer.questionId },
@@ -60,7 +77,6 @@ export class ResponseService {
         );
       }
 
-      // Проверяем optionId если он задан (не 0 и не null)
       if (answer.optionId) {
         const option = await this.prisma.option.findUnique({
           where: { id: answer.optionId },

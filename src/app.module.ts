@@ -10,6 +10,7 @@ import { AnswerModule } from './answer/answer.module';
 import { ResponseModule } from './response/response.module';
 import { CategoryModule } from './category/category.module';
 import { TagsModule } from './tags/tags.module';
+import { FormSettingsModule } from './form-settings/form-settings.module';
 
 @Module({
   controllers: [AppController],
@@ -24,6 +25,7 @@ import { TagsModule } from './tags/tags.module';
     ResponseModule,
     CategoryModule,
     TagsModule,
+    FormSettingsModule,
   ],
 })
 export class AppModule {}
