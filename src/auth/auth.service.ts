@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/login.dto';
+import { UserRole } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -18,7 +19,7 @@ export class AuthService {
     const user = await this.prisma.user.create({
       data: { ...dto, password: hashedPassword },
     });
-    const token = await this.singToken(user.id, user.email);
+    const token = await this.singToken(user.id, user.email, user.role);
     return { user, token };
   }
 
@@ -31,12 +32,16 @@ export class AuthService {
       throw new UnauthorizedException('Incorrect email or password');
     }
 
-    const token = await this.singToken(user.id, user.email);
+    const token = await this.singToken(user.id, user.email, user.role);
     return { user, token };
   }
 
-  async singToken(userId: number, email: string): Promise<string> {
-    const payload = { sub: userId, email };
+  async singToken(
+    userId: number,
+    email: string,
+    role: UserRole,
+  ): Promise<string> {
+    const payload = { sub: userId, email, role };
     return this.jwt.signAsync(payload);
   }
 }

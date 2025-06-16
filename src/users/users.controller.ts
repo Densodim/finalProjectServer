@@ -7,15 +7,27 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { UserEntity } from './entities/user.entity';
+import { Roles } from '../auth/authorization/roles.decorator';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RolesGuard } from '../auth/authorization/roles.guard';
 
 @Controller('users')
 @ApiTags('users')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -26,6 +38,8 @@ export class UsersController {
   }
 
   @Get()
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Get all users only can use ADMIN' })
   @ApiOkResponse({ type: UserEntity, isArray: true })
   findAll() {
     return this.usersService.findAll();
@@ -38,6 +52,8 @@ export class UsersController {
   }
 
   @Patch(':id')
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Update user only can use ADMIN' })
   @ApiOkResponse({ type: UserEntity })
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -47,6 +63,8 @@ export class UsersController {
   }
 
   @Delete(':id')
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Delete user only can use ADMIN' })
   @ApiOkResponse({ type: UserEntity })
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.remove(+id);
