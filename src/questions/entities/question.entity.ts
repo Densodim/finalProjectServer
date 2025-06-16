@@ -1,7 +1,7 @@
 import { Question, QuestionType } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
-import { OptionEntity } from './option.entity';
 import { QuestionValidationEntity } from '../../question-validation/entities/question-validation.entity';
+import { OptionEntity } from '../../option/entities/option.entity';
 
 export class QuestionEntity implements Question {
   @ApiProperty()

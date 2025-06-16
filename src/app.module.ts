@@ -12,6 +12,7 @@ import { CategoryModule } from './category/category.module';
 import { TagsModule } from './tags/tags.module';
 import { FormSettingsModule } from './form-settings/form-settings.module';
 import { QuestionValidationModule } from './question-validation/question-validation.module';
+import { OptionModule } from './option/option.module';
 
 @Module({
   controllers: [AppController],
@@ -28,6 +29,7 @@ import { QuestionValidationModule } from './question-validation/question-validat
     TagsModule,
     FormSettingsModule,
     QuestionValidationModule,
+    OptionModule,
   ],
 })
 export class AppModule {}
