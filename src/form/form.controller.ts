@@ -5,6 +5,7 @@ import {
   Get,
   HttpCode,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   Req,
@@ -27,7 +28,7 @@ import { FormEntity } from './entities/form.entity';
 import { UpdateFormTagsDto } from './dto/update-form-tags.dto';
 
 @Controller('form')
-@ApiTags('create Form')
+@ApiTags('Forms')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 export class FormController {
@@ -60,17 +61,17 @@ export class FormController {
   @Patch(':id')
   @ApiOkResponse({ type: FormEntity })
   update(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Body() updateFormDto: UpdateFormDto,
     @Req() req: RequestWithUser,
   ) {
-    return this.formService.update(+id, updateFormDto, req.user.id);
+    return this.formService.update(id, updateFormDto, req.user.id);
   }
 
   @Delete(':id')
   @ApiOkResponse({ type: FormEntity })
-  remove(@Param('id') id: string, @Req() req: RequestWithUser) {
-    return this.formService.softDelete(+id, req.user.id);
+  remove(@Param('id', ParseIntPipe) id: number, @Req() req: RequestWithUser) {
+    return this.formService.softDelete(id, req.user.id);
   }
 
   @Post('tags/add')
@@ -88,6 +89,12 @@ export class FormController {
   @ApiBadRequestResponse({ description: 'Invalid input data' })
   removeTags(@Body() updateTagDto: UpdateFormTagsDto) {
     return this.formService.deleteTags(updateTagDto);
+  }
+
+  @Post('/search')
+  @ApiOperation({ summary: 'Search tag' })
+  fullTextSearch(@Body('query') query: string) {
+    return this.formService.fullTextSearch(query);
   }
 }
 
