@@ -13,6 +13,9 @@ import { TagsModule } from './tags/tags.module';
 import { FormSettingsModule } from './form-settings/form-settings.module';
 import { QuestionValidationModule } from './question-validation/question-validation.module';
 import { OptionModule } from './option/option.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { MeiliSearchModule } from 'nestjs-meilisearch';
+
 
 @Module({
   controllers: [AppController],
@@ -30,6 +33,16 @@ import { OptionModule } from './option/option.module';
     FormSettingsModule,
     QuestionValidationModule,
     OptionModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    MeiliSearchModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        host: configService.get<string>('MEILI_HOST') ?? 'localhost',
+        apiKey: configService.get<string>('MEILI_API_KEY') ?? '',
+      }),
+    }),
   ],
 })
 export class AppModule {}
