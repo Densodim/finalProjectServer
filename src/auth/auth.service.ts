@@ -36,7 +36,20 @@ export class AuthService {
     return { user, token };
   }
 
-  async singToken(
+  async me(userId: number) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    const token = await this.singToken(user.id, user.email, user.role);
+    return { user, token };
+  }
+
+  private async singToken(
     userId: number,
     email: string,
     role: UserRole,
