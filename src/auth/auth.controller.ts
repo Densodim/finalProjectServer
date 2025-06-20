@@ -13,6 +13,7 @@ import { CreateUserDto } from '../users/dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { UsersService } from '../users/users.service';
+import { AuthEntities } from './entities/auth.entities';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -37,10 +38,10 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOkResponse({ type: UserEntity })
+  @ApiOkResponse({ type: AuthEntities })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @Get('me')
   async me(@Req() req: { user: UserEntity }) {
-    return this.usersService.findOne(req.user.id);
+    return this.authService.me(req.user.id);
   }
 }
