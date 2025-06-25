@@ -12,7 +12,7 @@ export class UsersService {
   }
 
   findAll() {
-    return this.prisma.user.findMany({ where: { isActive: true } });
+    return this.prisma.user.findMany();
   }
 
   findOne(id: number) {
