@@ -41,9 +41,17 @@ export class FormController {
   }
 
   @Get()
+  @ApiOkResponse({ type: FormEntity })
+  @ApiOperation({ summary: 'displays all the forms all users' })
+  findAll() {
+    return this.formService.findAll();
+  }
+
+  @Get('formsUser')
   @ApiOkResponse({ type: FormEntity, isArray: true })
-  findAll(@Req() req: RequestWithUser) {
-    return this.formService.findAll(req.user.id);
+  @ApiOperation({ summary: 'displays all the forms of one user' })
+  findAllUser(@Req() req: RequestWithUser) {
+    return this.formService.findAllUser(req.user.id);
   }
 
   @Get('deleteForm')

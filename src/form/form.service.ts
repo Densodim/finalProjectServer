@@ -32,13 +32,17 @@ export class FormService {
     return form;
   }
 
-  findAll(userId: number) {
+  findAllUser(userId: number) {
     return this.prisma.form.findMany({
       where: {
         isDeleted: false,
         authorId: userId,
       },
     });
+  }
+
+  findAll() {
+    return this.prisma.form.findMany();
   }
 
   findOne(id: number, userId: number) {
