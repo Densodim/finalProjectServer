@@ -26,6 +26,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { User } from '@prisma/client';
 import { FormEntity } from './entities/form.entity';
 import { UpdateFormTagsDto } from './dto/update-form-tags.dto';
+import { Roles } from '../auth/authorization/roles.decorator';
 
 @Controller('form')
 @ApiTags('Forms')
@@ -76,7 +77,8 @@ export class FormController {
     return this.formService.update(id, updateFormDto, req.user.id);
   }
 
-  @Delete(':id')
+  @Post(':id')
+  @ApiOperation({ summary: 'Soft delete form' })
   @ApiOkResponse({ type: FormEntity })
   remove(@Param('id', ParseIntPipe) id: number, @Req() req: RequestWithUser) {
     return this.formService.softDelete(id, req.user.id);
@@ -103,6 +105,14 @@ export class FormController {
   @ApiOperation({ summary: 'Search tag' })
   fullTextSearch(@Body('query') query: string) {
     return this.formService.fullTextSearch(query);
+  }
+
+  @Delete(':id')
+  @Roles('ADMIN')
+  @ApiOkResponse({ type: FormEntity })
+  @ApiOperation({ summary: 'Delete form only can use ADMIN' })
+  removeForm(@Param('id', ParseIntPipe) id: number) {
+    return this.formService.remove(id);
   }
 }
 
