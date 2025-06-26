@@ -81,6 +81,10 @@ export class FormService {
     return form;
   }
 
+  async remove(id: number) {
+    return this.prisma.form.delete({ where: { id } });
+  }
+
   async softDelete(id: number, userId: number) {
     const form = await this.prisma.form.update({
       where: {
