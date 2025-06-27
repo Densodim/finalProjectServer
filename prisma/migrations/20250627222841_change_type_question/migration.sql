@@ -2,7 +2,7 @@
 CREATE TYPE "UserRole" AS ENUM ('USER', 'ADMIN', 'SUPER_ADMIN');
 
 -- CreateEnum
-CREATE TYPE "QuestionType" AS ENUM ('SHORT_TEXT', 'LONG_TEXT', 'MULTIPLE_CHOICE', 'CHECKBOXES', 'BROPDOWN', 'FILE_UPLOAD', 'EMAIL', 'NUMBER');
+CREATE TYPE "QuestionType" AS ENUM ('text', 'comment', 'radiogroup', 'checkbox', 'email', 'number', 'file');
 
 -- CreateTable
 CREATE TABLE "User" (
@@ -21,7 +21,7 @@ CREATE TABLE "User" (
 
 -- CreateTable
 CREATE TABLE "AdminLog" (
-    "id" TEXT NOT NULL,
+    "id" SERIAL NOT NULL,
     "action" TEXT NOT NULL,
     "details" TEXT NOT NULL,
     "adminId" INTEGER NOT NULL,
@@ -34,8 +34,8 @@ CREATE TABLE "AdminLog" (
 
 -- CreateTable
 CREATE TABLE "Response" (
-    "id" TEXT NOT NULL,
-    "formId" TEXT NOT NULL,
+    "id" SERIAL NOT NULL,
+    "formId" INTEGER NOT NULL,
     "userId" INTEGER,
     "email" TEXT,
     "submittedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -48,7 +48,7 @@ CREATE TABLE "Response" (
 
 -- CreateTable
 CREATE TABLE "Form" (
-    "id" TEXT NOT NULL,
+    "id" SERIAL NOT NULL,
     "title" TEXT NOT NULL,
     "description" TEXT,
     "isPublished" BOOLEAN NOT NULL DEFAULT false,
@@ -56,14 +56,14 @@ CREATE TABLE "Form" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "authorId" INTEGER NOT NULL,
-    "categoryId" TEXT,
+    "categoryId" INTEGER,
 
     CONSTRAINT "Form_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "FormSettings" (
-    "id" TEXT NOT NULL,
+    "id" SERIAL NOT NULL,
     "allowResponses" BOOLEAN NOT NULL DEFAULT true,
     "collectEmails" BOOLEAN NOT NULL DEFAULT false,
     "limitResponses" INTEGER,
@@ -72,41 +72,41 @@ CREATE TABLE "FormSettings" (
     "allowFileUpload" BOOLEAN NOT NULL DEFAULT false,
     "maxFileSize" INTEGER,
     "allowedFileTypes" TEXT[],
-    "formId" TEXT NOT NULL,
+    "formId" INTEGER NOT NULL,
 
     CONSTRAINT "FormSettings_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Question" (
-    "id" TEXT NOT NULL,
+    "id" SERIAL NOT NULL,
     "title" TEXT NOT NULL,
     "desctiption" TEXT,
     "type" "QuestionType" NOT NULL,
     "isRequired" BOOLEAN NOT NULL DEFAULT false,
     "order" INTEGER NOT NULL,
-    "formId" TEXT NOT NULL,
+    "formId" INTEGER NOT NULL,
 
     CONSTRAINT "Question_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Option" (
-    "id" TEXT NOT NULL,
+    "id" SERIAL NOT NULL,
     "text" TEXT NOT NULL,
     "order" INTEGER NOT NULL,
-    "questionId" TEXT NOT NULL,
+    "questionId" INTEGER NOT NULL,
 
     CONSTRAINT "Option_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Answer" (
-    "id" TEXT NOT NULL,
-    "questionId" TEXT NOT NULL,
-    "responseId" TEXT NOT NULL,
+    "id" SERIAL NOT NULL,
+    "questionId" INTEGER NOT NULL,
+    "responseId" INTEGER NOT NULL,
     "textAnswer" TEXT,
-    "optionId" TEXT,
+    "optionId" INTEGER,
     "fileUrl" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -115,8 +115,8 @@ CREATE TABLE "Answer" (
 
 -- CreateTable
 CREATE TABLE "QuestionValidation" (
-    "id" TEXT NOT NULL,
-    "questionId" TEXT NOT NULL,
+    "id" SERIAL NOT NULL,
+    "questionId" INTEGER NOT NULL,
     "minLength" INTEGER,
     "maxLength" INTEGER,
     "pattern" TEXT,
@@ -129,7 +129,7 @@ CREATE TABLE "QuestionValidation" (
 
 -- CreateTable
 CREATE TABLE "Tag" (
-    "id" TEXT NOT NULL,
+    "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -139,7 +139,7 @@ CREATE TABLE "Tag" (
 
 -- CreateTable
 CREATE TABLE "Category" (
-    "id" TEXT NOT NULL,
+    "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "description" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -150,8 +150,8 @@ CREATE TABLE "Category" (
 
 -- CreateTable
 CREATE TABLE "_FormToTag" (
-    "A" TEXT NOT NULL,
-    "B" TEXT NOT NULL,
+    "A" INTEGER NOT NULL,
+    "B" INTEGER NOT NULL,
 
     CONSTRAINT "_FormToTag_AB_pkey" PRIMARY KEY ("A","B")
 );
