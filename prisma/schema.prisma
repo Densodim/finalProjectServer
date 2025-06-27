@@ -21,14 +21,13 @@ enum UserRole {
 }
 
 enum QuestionType {
-  SHORT_TEXT
-  LONG_TEXT
-  MULTIPLE_CHOICE
-  CHECKBOXES
-  BROPDOWN
-  FILE_UPLOAD
-  EMAIL
-  NUMBER
+  text
+  comment
+  radiogroup
+  checkbox
+  email
+  number
+  file
 }
 
 model User {
