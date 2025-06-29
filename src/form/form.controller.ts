@@ -56,15 +56,10 @@ export class FormController {
   }
 
   @Get('deleteForm')
+  @ApiOperation({ summary: 'Delete form' })
   @ApiOkResponse({ type: FormEntity })
   findDelete(@Req() req: RequestWithUser) {
     return this.formService.findAllDeleted(req.user.id);
-  }
-
-  @Get(':id')
-  @ApiOkResponse({ type: FormEntity })
-  findOne(@Param('id') id: string, @Req() req: RequestWithUser) {
-    return this.formService.findOne(+id, req.user.id);
   }
 
   @Get('publishedForm')
@@ -72,6 +67,12 @@ export class FormController {
   @ApiOperation({ summary: 'displays all published Form' })
   publishedForm() {
     return this.formService.displayPublished();
+  }
+
+  @Get(':id')
+  @ApiOkResponse({ type: FormEntity })
+  findOne(@Param('id') id: string, @Req() req: RequestWithUser) {
+    return this.formService.findOne(+id, req.user.id);
   }
 
   @Patch(':id')
