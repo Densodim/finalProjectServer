@@ -67,6 +67,13 @@ export class FormController {
     return this.formService.findOne(+id, req.user.id);
   }
 
+  @Get('publishedForm')
+  @ApiOkResponse({ type: FormEntity, isArray: true })
+  @ApiOperation({ summary: 'displays all published Form' })
+  publishedForm() {
+    return this.formService.displayPublished();
+  }
+
   @Patch(':id')
   @ApiOkResponse({ type: FormEntity })
   update(
