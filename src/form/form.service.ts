@@ -45,6 +45,10 @@ export class FormService {
     return this.prisma.form.findMany();
   }
 
+  displayPublished() {
+    return this.prisma.form.findMany({ where: { isPublished: true } });
+  }
+
   findOne(id: number, userId: number) {
     return this.prisma.form.findFirst({
       where: {
