@@ -61,17 +61,17 @@ export class FormController {
     return this.formService.findAllDeleted(req.user.id);
   }
 
-  @Get(':id')
-  @ApiOkResponse({ type: FormEntity })
-  findOne(@Param('id') id: string, @Req() req: RequestWithUser) {
-    return this.formService.findOne(+id, req.user.id);
-  }
-
   @Get('publishedForm')
   @ApiOkResponse({ type: FormEntity, isArray: true })
   @ApiOperation({ summary: 'displays all published Form' })
   publishedForm() {
     return this.formService.displayPublished();
+  }
+
+  @Get(':id')
+  @ApiOkResponse({ type: FormEntity })
+  findOne(@Param('id') id: string, @Req() req: RequestWithUser) {
+    return this.formService.findOne(+id, req.user.id);
   }
 
   @Patch(':id')
