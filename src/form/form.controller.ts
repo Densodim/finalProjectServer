@@ -56,6 +56,7 @@ export class FormController {
   }
 
   @Get('deleteForm')
+  @ApiOperation({ summary: 'Delete form' })
   @ApiOkResponse({ type: FormEntity })
   findDelete(@Req() req: RequestWithUser) {
     return this.formService.findAllDeleted(req.user.id);
