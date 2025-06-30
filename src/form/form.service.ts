@@ -86,7 +86,9 @@ export class FormService {
   }
 
   async remove(id: number) {
-    return this.prisma.form.delete({ where: { id } });
+    const form = await this.prisma.form.delete({ where: { id } });
+    await this.meiliSearch.index('form').deleteDocument(form.id);
+    return form;
   }
 
   async softDelete(id: number, userId: number) {

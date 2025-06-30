@@ -27,6 +27,7 @@ import { User } from '@prisma/client';
 import { FormEntity } from './entities/form.entity';
 import { UpdateFormTagsDto } from './dto/update-form-tags.dto';
 import { Roles } from '../auth/authorization/roles.decorator';
+import { SearchFormDto } from './dto/search-form.dto';
 
 @Controller('form')
 @ApiTags('Forms')
@@ -75,6 +76,12 @@ export class FormController {
     return this.formService.findOne(+id, req.user.id);
   }
 
+  @Post('/search')
+  @ApiOperation({ summary: 'Search form' })
+  fullTextSearch(@Body() body: SearchFormDto) {
+    return this.formService.fullTextSearch(body.query);
+  }
+
   @Patch(':id')
   @ApiOkResponse({ type: FormEntity })
   update(
@@ -107,12 +114,6 @@ export class FormController {
   @ApiBadRequestResponse({ description: 'Invalid input data' })
   removeTags(@Body() updateTagDto: UpdateFormTagsDto) {
     return this.formService.deleteTags(updateTagDto);
-  }
-
-  @Post('/search')
-  @ApiOperation({ summary: 'Search tag' })
-  fullTextSearch(@Body('query') query: string) {
-    return this.formService.fullTextSearch(query);
   }
 
   @Delete(':id')
