@@ -2,10 +2,15 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { InjectMeiliSearch } from 'nestjs-meilisearch';
+import { MeiliSearch } from 'meilisearch';
 
 @Injectable()
 export class QuestionsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    @InjectMeiliSearch() private readonly meiliSearch: MeiliSearch,
+  ) {}
 
   async getQuestionsByFormId(formId: number) {
     return this.prisma.question.findMany({
@@ -41,11 +46,17 @@ export class QuestionsService {
         validation: true,
       },
     });
+    await this.meiliSearch.index('form').addDocuments([
+      {
+        id: question.id,
+        title: question.title,
+      },
+    ]);
     return question;
   }
 
   async updateQuestion(id: number, updateQuestionDto: UpdateQuestionDto) {
-    return this.prisma.question.update({
+    const question = await this.prisma.question.update({
       where: { id },
       data: {
         ...updateQuestionDto,
@@ -69,11 +80,20 @@ export class QuestionsService {
         options: true,
       },
     });
+    await this.meiliSearch.index('form').updateDocuments([
+      {
+        id: question.id,
+        title: question.title,
+      },
+    ]);
+    return question;
   }
 
   async removeQuestion(id: number) {
     await this.getByIdOrThrowQuestion(id);
-    return this.prisma.question.delete({ where: { id } });
+    const question = await this.prisma.question.delete({ where: { id } });
+    await this.meiliSearch.index('form').deleteDocument(question.id);
+    return question;
   }
 
   private async getByIdOrThrowQuestion(id: number) {
