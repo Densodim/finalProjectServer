@@ -27,4 +27,9 @@ export class CreateFormDto {
   @IsOptional()
   @ApiProperty({ required: false, nullable: true })
   categoryId: number;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({ required: false })
+  fileUrl: string;
 }
