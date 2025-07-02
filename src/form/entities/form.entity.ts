@@ -46,4 +46,7 @@ export class FormEntity {
 
   @ApiProperty()
   tags: Tag[];
+
+  @ApiProperty({ required: false, type: String })
+  fileUrl?: string;
 }
