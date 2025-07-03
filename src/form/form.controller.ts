@@ -9,7 +9,9 @@ import {
   Patch,
   Post,
   Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { FormService } from './form.service';
 import { CreateFormDto } from './dto/create-form.dto';
@@ -28,6 +30,7 @@ import { FormEntity } from './entities/form.entity';
 import { UpdateFormTagsDto } from './dto/update-form-tags.dto';
 import { Roles } from '../auth/authorization/roles.decorator';
 import { SearchFormDto } from './dto/search-form.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('form')
 @ApiTags('Forms')
@@ -38,8 +41,13 @@ export class FormController {
 
   @Post()
   @ApiCreatedResponse({ type: FormEntity })
-  create(@Body() createFormDto: CreateFormDto, @Req() req: RequestWithUser) {
-    return this.formService.create(createFormDto, req.user.id);
+  @UseInterceptors(FileInterceptor('file'))
+  create(
+    @Body() createFormDto: CreateFormDto,
+    @Req() req: RequestWithUser,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.formService.create(createFormDto, req.user.id, file);
   }
 
   @Get()

@@ -16,7 +16,6 @@ import { OptionModule } from './option/option.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MeiliSearchModule } from 'nestjs-meilisearch';
 
-
 @Module({
   controllers: [AppController],
   providers: [AppService],
