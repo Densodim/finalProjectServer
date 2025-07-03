@@ -5,20 +5,33 @@ import { PrismaService } from '../prisma/prisma.service';
 import { UpdateFormTagsDto } from './dto/update-form-tags.dto';
 import { InjectMeiliSearch } from 'nestjs-meilisearch';
 import { MeiliSearch } from 'meilisearch';
+import { CloudinaryService } from 'nestjs-cloudinary';
 
 @Injectable()
 export class FormService {
   constructor(
     private prisma: PrismaService,
     @InjectMeiliSearch() private readonly meiliSearch: MeiliSearch,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
-  async create(createFormDto: CreateFormDto, userId: number) {
+  async create(
+    createFormDto: CreateFormDto,
+    userId: number,
+    file?: Express.Multer.File,
+  ) {
+    let fileUrl: string | undefined = undefined;
+
+    if (file) {
+      const result = await this.cloudinaryService.uploadFile(file);
+      fileUrl = result.url;
+    }
     await this.validation(createFormDto);
     const form = await this.prisma.form.create({
       data: {
         ...createFormDto,
         authorId: userId,
+        fileUrl,
       },
     });
     await this.meiliSearch.index('form').addDocuments([
