@@ -1,12 +1,12 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty } from "@nestjs/swagger";
 import {
   IsBoolean,
   IsInt,
   IsNotEmpty,
   IsOptional,
   IsString,
-} from 'class-validator';
-import { Type } from 'class-transformer';
+} from "class-validator";
+import { Type } from "class-transformer";
 
 export class CreateFormDto {
   @IsNotEmpty()
@@ -32,5 +32,5 @@ export class CreateFormDto {
   @IsString()
   @IsOptional()
   @ApiProperty({ required: false })
-  fileUrl: string;
+  file?: string;
 }
