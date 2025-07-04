@@ -30,6 +30,7 @@ export class FormService {
     const form = await this.prisma.form.create({
       data: {
         ...createFormDto,
+        categoryId: Number(createFormDto.categoryId),
         authorId: userId,
         fileUrl,
       },
