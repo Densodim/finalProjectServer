@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateFormDto } from './dto/create-form.dto';
 import { UpdateFormDto } from './dto/update-form.dto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -22,6 +26,11 @@ export class FormService {
   ) {
     let fileUrl: string | undefined = undefined;
 
+    const categoryId = Number(createFormDto.categoryId);
+    if (isNaN(categoryId)) {
+      throw new BadRequestException('categoryId must be a valid number');
+    }
+
     if (file) {
       const result = await this.cloudinaryService.uploadFile(file);
       fileUrl = result.url;
@@ -30,7 +39,7 @@ export class FormService {
     const form = await this.prisma.form.create({
       data: {
         ...createFormDto,
-        categoryId: Number(createFormDto.categoryId),
+        categoryId,
         authorId: userId,
         fileUrl,
       },

@@ -1,12 +1,5 @@
-import { ApiProperty } from "@nestjs/swagger";
-import {
-  IsBoolean,
-  IsInt,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-} from "class-validator";
-import { Type } from "class-transformer";
+import { ApiProperty } from '@nestjs/swagger';
+import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateFormDto {
   @IsNotEmpty()
@@ -24,10 +17,8 @@ export class CreateFormDto {
   @ApiProperty({ default: false })
   isPublished: boolean = false;
 
-  @IsInt()
   @IsOptional()
   @ApiProperty({ required: false, nullable: true })
-  @Type(() => Number)
   categoryId: number;
 
   @IsString()
