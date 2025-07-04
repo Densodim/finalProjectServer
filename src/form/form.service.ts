@@ -165,7 +165,7 @@ export class FormService {
   private async validation(createFormDto: CreateFormDto) {
     if (createFormDto.categoryId) {
       const categoryExists = await this.prisma.category.findUnique({
-        where: { id: createFormDto.categoryId },
+        where: { id: Number(createFormDto.categoryId) },
       });
       if (!categoryExists) {
         throw new NotFoundException(
