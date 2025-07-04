@@ -1,5 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { Category, FormSettings, Question, Tag, User } from '@prisma/client';
+import { ApiProperty } from "@nestjs/swagger";
+import { Category, FormSettings, Question, Tag, User } from "@prisma/client";
 
 export class FormEntity {
   @ApiProperty({ type: Number })
@@ -48,5 +48,5 @@ export class FormEntity {
   tags: Tag[];
 
   @ApiProperty({ required: false, type: String })
-  fileUrl?: string;
+  file?: string;
 }

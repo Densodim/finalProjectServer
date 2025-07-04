@@ -27,6 +27,7 @@ export class CreateFormDto {
   @IsInt()
   @IsOptional()
   @ApiProperty({ required: false, nullable: true })
+  @Type(() => String)
   categoryId: number;
 
   @IsString()
