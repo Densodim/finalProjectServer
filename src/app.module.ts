@@ -15,6 +15,7 @@ import { QuestionValidationModule } from './question-validation/question-validat
 import { OptionModule } from './option/option.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MeiliSearchModule } from 'nestjs-meilisearch';
+import { SalesforceModule } from './salesforce/salesforce.module';
 
 @Module({
   controllers: [AppController],
@@ -42,6 +43,7 @@ import { MeiliSearchModule } from 'nestjs-meilisearch';
         apiKey: configService.get<string>('MEILI_API_KEY') ?? '',
       }),
     }),
+    SalesforceModule,
   ],
 })
 export class AppModule {}
