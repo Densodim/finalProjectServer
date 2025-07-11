@@ -1,5 +1,5 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { Category, FormSettings, Question, Tag, User } from "@prisma/client";
+import { ApiProperty } from '@nestjs/swagger';
+import { Category, FormSettings, Question, Tag, User } from '@prisma/client';
 
 export class FormEntity {
   @ApiProperty({ type: Number })
