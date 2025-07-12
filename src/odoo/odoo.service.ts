@@ -1,0 +1,221 @@
+import { Injectable } from '@nestjs/common';
+import { OdooAuthenticationError, OdooClient, OdooError } from 'odoo-xmlrpc-ts';
+import { ConfigService } from '@nestjs/config';
+import { PrismaService } from '../prisma/prisma.service';
+
+@Injectable()
+export class OdooService {
+  private client: OdooClient;
+
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly prisma: PrismaService,
+  ) {
+    this.client = new OdooClient({
+      url: this.configService.get<string>('ODOO_URL') || '',
+      db: this.configService.get<string>('ODOO_DB') || '',
+      username: this.configService.get<string>('ODOO_USERNAME') || '',
+      password: this.configService.get<string>('ODOO_PASSWORD') || '',
+    });
+  }
+
+  private handleError(error: any) {
+    if (error instanceof OdooAuthenticationError) {
+      console.error('Auth failed:', error.message);
+    } else if (error instanceof OdooError) {
+      console.error('Odoo error:', error.message);
+    } else {
+      console.error('Unknown error:', error);
+    }
+    throw error;
+  }
+
+  async getSurveys() {
+    try {
+      return await this.client.searchRead('survey.survey', [], {
+        fields: ['id', 'title', 'description'],
+        limit: 20,
+      });
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  async importFromOdooToLocal(userId: number) {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+      });
+
+      if (!user) {
+        throw new Error(`User with ID ${userId} not found`);
+      }
+
+      const odooTemplates = await this.client.searchRead('survey.survey', [], {
+        fields: [
+          'id',
+          'title',
+          'description',
+          'user_id',
+          'create_date',
+          'write_date',
+        ],
+      });
+
+      const importedForms: Array<{
+        id: number;
+        title: string;
+        questionsCount: number;
+        odooId: any;
+      }> = [];
+
+      for (const odooTemplate of odooTemplates as any[]) {
+        const existingForm = await this.prisma.form.findFirst({
+          where: {
+            title: odooTemplate.title,
+            authorId: userId,
+          },
+        });
+
+        if (!existingForm) {
+          const newForm = await this.prisma.form.create({
+            data: {
+              title: odooTemplate.title,
+              description: `Imported from Odoo (ID: ${odooTemplate.id})`,
+              authorId: userId,
+              isPublished: true,
+            },
+          });
+
+          const odooQuestions = await this.client.searchRead(
+            'survey.question',
+            [['survey_id', '=', odooTemplate.id]],
+            {
+              fields: ['id', 'title', 'question_type', 'sequence'],
+            },
+          );
+
+          for (const odooQuestion of odooQuestions as any[]) {
+            await this.prisma.question.create({
+              data: {
+                title: odooQuestion.title,
+                type: this.mapOdooQuestionType(
+                  odooQuestion.question_type,
+                ) as any,
+                isRequired: false,
+                order: odooQuestion.sequence || 1,
+                formId: newForm.id,
+              },
+            });
+          }
+
+          importedForms.push({
+            id: newForm.id,
+            title: newForm.title,
+            questionsCount: odooQuestions.length,
+            odooId: odooTemplate.id,
+          });
+        }
+      }
+
+      return {
+        importedCount: importedForms.length,
+        forms: importedForms,
+      };
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  private mapOdooQuestionType(odooType: string): string {
+    const typeMapping: { [key: string]: string } = {
+      text: 'text',
+      comment: 'comment',
+      radiogroup: 'radiogroup',
+      checkbox: 'checkbox',
+      email: 'email',
+      number: 'number',
+      file: 'file',
+    };
+
+    return typeMapping[odooType] || 'text';
+  }
+
+  async exportFormToOdoo(formId: number) {
+    try {
+      // Get form with questions from local database
+      const form = await this.prisma.form.findUnique({
+        where: { id: formId },
+        include: {
+          questions: {
+            orderBy: { order: 'asc' },
+          },
+        },
+      });
+
+      if (!form) {
+        throw new Error(`Form with ID ${formId} not found`);
+      }
+
+      // Create survey in Odoo
+      const surveyData = {
+        title: form.title,
+        description:
+          form.description || `Exported from local system (ID: ${form.id})`,
+        user_id: 1, // Odoo user ID (can be configured)
+      };
+
+      const odooSurveyId = await this.client.create(
+        'survey.survey',
+        surveyData,
+      );
+
+      for (const question of form.questions) {
+        try {
+          const questionData = {
+            survey_id: odooSurveyId,
+            title: question.title,
+            question_type: this.mapLocalQuestionType(question.type),
+            sequence: question.order,
+          };
+
+          await this.client.create('survey.question', questionData);
+        } catch (error) {
+          console.log(
+            `Failed to create question with question_type, trying without it...`,
+          );
+
+          const questionData = {
+            survey_id: odooSurveyId,
+            title: question.title,
+            sequence: question.order,
+          };
+
+          await this.client.create('survey.question', questionData);
+        }
+      }
+
+      return {
+        odooSurveyId,
+        message: 'Form successfully created in Odoo',
+        formTitle: form.title,
+        questionsCount: form.questions.length,
+      };
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  private mapLocalQuestionType(localType: string): string {
+    const typeMapping: { [key: string]: string } = {
+      text: 'char_box',
+      comment: 'text_box',
+      radiogroup: 'simple_choice',
+      checkbox: 'multiple_choice',
+      email: 'char_box',
+      number: 'numerical_box',
+      file: 'char_box',
+    };
+    return typeMapping[localType] || 'char_box';
+  }
+}

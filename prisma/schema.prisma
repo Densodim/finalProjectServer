@@ -43,6 +43,7 @@ model User {
   form        Form[]
   responses   Response[]
   adminLog    AdminLog[]
+  apiToken    String?    @unique
 }
 
 model AdminLog {

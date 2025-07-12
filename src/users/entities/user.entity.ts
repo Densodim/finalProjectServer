@@ -28,4 +28,7 @@ export class UserEntity implements User {
 
   @ApiProperty()
   updatedAt: Date;
+
+  @ApiProperty({ required: false })
+  apiToken: string;
 }
