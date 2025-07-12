@@ -16,6 +16,8 @@ import { OptionModule } from './option/option.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MeiliSearchModule } from 'nestjs-meilisearch';
 import { SalesforceModule } from './salesforce/salesforce.module';
+import { OdooModule } from './odoo/odoo.module';
+import { ExternalModule } from './external/external.module';
 
 @Module({
   controllers: [AppController],
@@ -44,6 +46,8 @@ import { SalesforceModule } from './salesforce/salesforce.module';
       }),
     }),
     SalesforceModule,
+    OdooModule,
+    ExternalModule,
   ],
 })
 export class AppModule {}

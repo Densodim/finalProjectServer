@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Form Template Tree View -->
+    <record id="view_form_template_tree" model="ir.ui.view">
+        <field name="name">form.template.tree</field>
+        <field name="model">form.template</field>
+        <field name="arch" type="xml">
+            <tree string="Form Templates">
+                <field name="title"/>
+                <field name="author"/>
+                <field name="total_responses"/>
+                <field name="created_at"/>
+                <field name="updated_at"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form Template Form View -->
+    <record id="view_form_template_form" model="ir.ui.view">
+        <field name="name">form.template.form</field>
+        <field name="model">form.template</field>
+        <field name="arch" type="xml">
+            <form string="Form Template">
+                <header>
+                    <button name="action_import_from_api" string="Import from API" type="object" class="btn-primary"/>
+                    <button name="action_view_questions" string="View Questions" type="object"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="title"/>
+                            <field name="author"/>
+                            <field name="total_responses"/>
+                        </group>
+                        <group>
+                            <field name="external_id"/>
+                            <field name="created_at"/>
+                            <field name="updated_at"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="api_token"/>
+                            <field name="import_url"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Questions">
+                            <field name="question_ids" readonly="1">
+                                <tree>
+                                    <field name="question_text"/>
+                                    <field name="question_type"/>
+                                    <field name="total_answers"/>
+                                    <field name="aggregated_result"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Form Question Tree View -->
+    <record id="view_form_question_tree" model="ir.ui.view">
+        <field name="name">form.question.tree</field>
+        <field name="model">form.question</field>
+        <field name="arch" type="xml">
+            <tree string="Form Questions">
+                <field name="question_text"/>
+                <field name="question_type"/>
+                <field name="total_answers"/>
+                <field name="template_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form Question Form View -->
+    <record id="view_form_question_form" model="ir.ui.view">
+        <field name="name">form.question.form</field>
+        <field name="model">form.question</field>
+        <field name="arch" type="xml">
+            <form string="Form Question">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="question_text"/>
+                            <field name="question_type"/>
+                            <field name="total_answers"/>
+                        </group>
+                        <group>
+                            <field name="external_id"/>
+                            <field name="template_id"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="aggregated_result" widget="text"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Form Template Action -->
+    <record id="action_form_template" model="ir.actions.act_window">
+        <field name="name">Form Templates</field>
+        <field name="res_model">form.template</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first form template!
+            </p>
+            <p>
+                Form templates allow you to store and view aggregated results from your forms.
+            </p>
+        </field>
+    </record>
+
+    <!-- Form Question Action -->
+    <record id="action_form_question" model="ir.actions.act_window">
+        <field name="name">Form Questions</field>
+        <field name="res_model">form.question</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No questions found!
+            </p>
+            <p>
+                Questions will be imported automatically when you import form templates.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu Items -->
+    <menuitem id="menu_form_templates"
+              name="Form Templates"
+              parent="survey.menu_survey_root"
+              action="action_form_template"
+              sequence="10"/>
+
+    <menuitem id="menu_form_questions"
+              name="Form Questions"
+              parent="survey.menu_survey_root"
+              action="action_form_question"
+              sequence="11"/>
+</odoo> 
