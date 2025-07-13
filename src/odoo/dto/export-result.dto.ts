@@ -24,4 +24,10 @@ export class ExportToOdooResultDto {
     example: 5,
   })
   questionsCount: number;
+
+  @ApiProperty({
+    description: "Direct link to access the survey in Odoo",
+    example: "https://denso.odoo.com/survey/start/123",
+  })
+  surveyLink: string;
 }
