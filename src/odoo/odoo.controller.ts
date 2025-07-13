@@ -1,40 +1,81 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { OdooService } from './odoo.service';
-import { ExportToOdooDto } from './dto/export-to-odoo.dto';
-import { ExportToOdooResultDto } from './dto/export-result.dto';
+import { Body, Controller, Get, Post, Query, Param } from "@nestjs/common";
+import {
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+  ApiQuery,
+} from "@nestjs/swagger";
+import { OdooService } from "./odoo.service";
+import { ExportToOdooDto } from "./dto/export-to-odoo.dto";
+import { ExportToOdooResultDto } from "./dto/export-result.dto";
+import { GetSurveyQuestionsDto } from "./dto/get-survey-questions.dto";
 
-@Controller('odoo')
-@ApiTags('Odoo Integration')
+@Controller("odoo")
+@ApiTags("Odoo Integration")
 export class OdooController {
   constructor(private readonly odooService: OdooService) {}
 
-  @Get('surveys')
+  @Get("surveys")
   @ApiOperation({
-    summary: 'Get surveys list from Odoo',
-    description: 'Returns list of all surveys available in Odoo',
+    summary: "Get surveys list from Odoo",
+    description: "Returns list of all surveys available in Odoo",
   })
   @ApiResponse({
     status: 200,
-    description: 'Surveys list successfully retrieved',
+    description: "Surveys list successfully retrieved",
   })
   getSurveys() {
     return this.odooService.getSurveys();
   }
 
-  @Post('import-from-odoo')
+  @Get("questions/:surveyId")
   @ApiOperation({
-    summary: 'Import data from Odoo to local database',
+    summary: "Get questions for specific survey from Odoo",
+    description: "Returns list of questions for a specific survey in Odoo",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Questions list successfully retrieved",
+  })
+  @ApiResponse({
+    status: 404,
+    description: "Survey not found",
+  })
+  getSurveyQuestions(@Param("surveyId") surveyId: string) {
+    return this.odooService.getSurveyQuestions(Number(surveyId));
+  }
+
+  @Get("survey/:id")
+  @ApiOperation({
+    summary: "Get survey details from Odoo",
+    description: "Returns detailed information about a specific survey",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Survey details successfully retrieved",
+  })
+  @ApiResponse({
+    status: 404,
+    description: "Survey not found",
+  })
+  getSurveyDetails(@Param("id") id: string) {
+    return this.odooService.getSurveyDetails(Number(id));
+  }
+
+  @Post("import-from-odoo")
+  @ApiOperation({
+    summary: "Import data from Odoo to local database",
     description:
-      'Imports form templates and questions from Odoo to local database',
+      "Imports form templates and questions from Odoo to local database",
   })
   @ApiBody({
     schema: {
-      type: 'object',
+      type: "object",
       properties: {
         userId: {
-          type: 'number',
-          description: 'User ID for import',
+          type: "number",
+          description: "User ID for import",
           example: 1,
         },
       },
@@ -42,29 +83,29 @@ export class OdooController {
   })
   @ApiResponse({
     status: 201,
-    description: 'Data successfully imported',
+    description: "Data successfully imported",
   })
   async importFromOdoo(@Body() body: { userId: number }) {
     return this.odooService.importFromOdooToLocal(body.userId);
   }
 
-  @Post('export-to-odoo')
+  @Post("export-to-odoo")
   @ApiOperation({
-    summary: 'Export form to Odoo',
-    description: 'Creates a new survey in Odoo based on local form',
+    summary: "Export form to Odoo",
+    description: "Creates a new survey in Odoo based on local form",
   })
   @ApiResponse({
     status: 201,
-    description: 'Form successfully exported to Odoo',
+    description: "Form successfully exported to Odoo",
     type: ExportToOdooResultDto,
   })
   @ApiResponse({
     status: 404,
-    description: 'Form not found',
+    description: "Form not found",
   })
   @ApiResponse({
     status: 500,
-    description: 'Failed to export to Odoo',
+    description: "Failed to export to Odoo",
   })
   async exportToOdoo(@Body() body: ExportToOdooDto) {
     return this.odooService.exportFormToOdoo(body.formId);
