@@ -250,6 +250,9 @@ export class OdooService {
         message: "Form successfully created in Odoo",
         formTitle: form.title,
         questionsCount: form.questions.length,
+        surveyLink: `${
+          this.configService.get<string>("ODOO_URL") || ""
+        }/survey/start/${odooSurveyId}`,
       };
     } catch (error) {
       this.handleError(error);
@@ -267,5 +270,39 @@ export class OdooService {
       file: "char_box",
     };
     return typeMapping[localType] || "char_box";
+  }
+
+  async getSurveyLink(surveyId: number) {
+    try {
+      const survey = await this.client.searchRead(
+        "survey.survey",
+        [["id", "=", surveyId]],
+        {
+          fields: ["id", "title", "access_token"],
+        }
+      );
+
+      if (!survey || survey.length === 0) {
+        return {
+          error: "Survey not found",
+          surveyId: Number(surveyId),
+        };
+      }
+
+      const surveyData = survey[0] as any;
+      const odooUrl = this.configService.get<string>("ODOO_URL") || "";
+
+      // Формируем ссылку на опрос в формате Odoo
+      const surveyLink = `${odooUrl}/survey/start/${surveyData.access_token}`;
+
+      return {
+        surveyId: Number(surveyId),
+        surveyTitle: surveyData.title,
+        surveyLink: surveyLink,
+        accessToken: surveyData.access_token,
+      };
+    } catch (error) {
+      this.handleError(error);
+    }
   }
 }

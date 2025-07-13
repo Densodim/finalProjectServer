@@ -1,15 +1,9 @@
-import { Body, Controller, Get, Post, Query, Param } from "@nestjs/common";
-import {
-  ApiBody,
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
-  ApiQuery,
-} from "@nestjs/swagger";
+import { Body, Controller, Get, Post, Param } from "@nestjs/common";
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { OdooService } from "./odoo.service";
 import { ExportToOdooDto } from "./dto/export-to-odoo.dto";
 import { ExportToOdooResultDto } from "./dto/export-result.dto";
-import { GetSurveyQuestionsDto } from "./dto/get-survey-questions.dto";
+import { SurveyLinkDto } from "./dto/survey-link.dto";
 
 @Controller("odoo")
 @ApiTags("Odoo Integration")
@@ -61,6 +55,24 @@ export class OdooController {
   })
   getSurveyDetails(@Param("id") id: string) {
     return this.odooService.getSurveyDetails(Number(id));
+  }
+
+  @Get("survey/:id/link")
+  @ApiOperation({
+    summary: "Get survey link from Odoo",
+    description: "Returns a direct link to access the survey in Odoo",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Survey link successfully retrieved",
+    type: SurveyLinkDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: "Survey not found",
+  })
+  getSurveyLink(@Param("id") id: string) {
+    return this.odooService.getSurveyLink(Number(id));
   }
 
   @Post("import-from-odoo")
