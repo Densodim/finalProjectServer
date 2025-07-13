@@ -43,13 +43,6 @@ export class OdooService {
 
   async getSurveyQuestions(surveyId: number) {
     try {
-      console.log(
-        "Getting questions for survey ID:",
-        surveyId,
-        "Type:",
-        typeof surveyId
-      );
-
       const questions = await this.client.searchRead(
         "survey.question",
         [["survey_id", "=", surveyId]],
@@ -58,9 +51,6 @@ export class OdooService {
           order: "sequence",
         }
       );
-
-      console.log("Found questions:", questions);
-
       return {
         surveyId: Number(surveyId),
         questions: questions.map((q: any) => ({
@@ -78,8 +68,6 @@ export class OdooService {
 
   async getSurveyDetails(surveyId: number) {
     try {
-      console.log("Getting survey details for ID:", surveyId);
-
       const survey = await this.client.searchRead(
         "survey.survey",
         [["id", "=", surveyId]],
@@ -87,8 +75,6 @@ export class OdooService {
           fields: ["id", "title", "description", "user_id", "create_date"],
         }
       );
-
-      console.log("Found survey:", survey);
 
       if (!survey || survey.length === 0) {
         return {
@@ -102,7 +88,6 @@ export class OdooService {
         survey: survey[0],
       };
     } catch (error) {
-      console.error("Error getting survey details:", error);
       this.handleError(error);
     }
   }
@@ -209,7 +194,6 @@ export class OdooService {
 
   async exportFormToOdoo(formId: number) {
     try {
-      // Get form with questions from local database
       const form = await this.prisma.form.findUnique({
         where: { id: formId },
         include: {
