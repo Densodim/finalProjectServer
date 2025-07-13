@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { OdooAuthenticationError, OdooClient, OdooError } from 'odoo-xmlrpc-ts';
-import { ConfigService } from '@nestjs/config';
-import { PrismaService } from '../prisma/prisma.service';
+import { Injectable } from "@nestjs/common";
+import { OdooAuthenticationError, OdooClient, OdooError } from "odoo-xmlrpc-ts";
+import { ConfigService } from "@nestjs/config";
+import { PrismaService } from "../prisma/prisma.service";
 
 @Injectable()
 export class OdooService {
@@ -9,34 +9,100 @@ export class OdooService {
 
   constructor(
     private readonly configService: ConfigService,
-    private readonly prisma: PrismaService,
+    private readonly prisma: PrismaService
   ) {
     this.client = new OdooClient({
-      url: this.configService.get<string>('ODOO_URL') || '',
-      db: this.configService.get<string>('ODOO_DB') || '',
-      username: this.configService.get<string>('ODOO_USERNAME') || '',
-      password: this.configService.get<string>('ODOO_PASSWORD') || '',
+      url: this.configService.get<string>("ODOO_URL") || "",
+      db: this.configService.get<string>("ODOO_DB") || "",
+      username: this.configService.get<string>("ODOO_USERNAME") || "",
+      password: this.configService.get<string>("ODOO_PASSWORD") || "",
     });
   }
 
   private handleError(error: any) {
     if (error instanceof OdooAuthenticationError) {
-      console.error('Auth failed:', error.message);
+      console.error("Auth failed:", error.message);
     } else if (error instanceof OdooError) {
-      console.error('Odoo error:', error.message);
+      console.error("Odoo error:", error.message);
     } else {
-      console.error('Unknown error:', error);
+      console.error("Unknown error:", error);
     }
     throw error;
   }
 
   async getSurveys() {
     try {
-      return await this.client.searchRead('survey.survey', [], {
-        fields: ['id', 'title', 'description'],
+      return await this.client.searchRead("survey.survey", [], {
+        fields: ["id", "title", "description"],
         limit: 20,
       });
     } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  async getSurveyQuestions(surveyId: number) {
+    try {
+      console.log(
+        "Getting questions for survey ID:",
+        surveyId,
+        "Type:",
+        typeof surveyId
+      );
+
+      const questions = await this.client.searchRead(
+        "survey.question",
+        [["survey_id", "=", surveyId]],
+        {
+          fields: ["id", "title", "question_type", "sequence"],
+          order: "sequence",
+        }
+      );
+
+      console.log("Found questions:", questions);
+
+      return {
+        surveyId: Number(surveyId),
+        questions: questions.map((q: any) => ({
+          id: q.id,
+          title: q.title,
+          type: q.question_type,
+          order: q.sequence,
+        })),
+      };
+    } catch (error) {
+      console.error("Error getting questions:", error);
+      this.handleError(error);
+    }
+  }
+
+  async getSurveyDetails(surveyId: number) {
+    try {
+      console.log("Getting survey details for ID:", surveyId);
+
+      const survey = await this.client.searchRead(
+        "survey.survey",
+        [["id", "=", surveyId]],
+        {
+          fields: ["id", "title", "description", "user_id", "create_date"],
+        }
+      );
+
+      console.log("Found survey:", survey);
+
+      if (!survey || survey.length === 0) {
+        return {
+          error: "Survey not found",
+          surveyId: Number(surveyId),
+        };
+      }
+
+      return {
+        surveyId: Number(surveyId),
+        survey: survey[0],
+      };
+    } catch (error) {
+      console.error("Error getting survey details:", error);
       this.handleError(error);
     }
   }
@@ -51,14 +117,14 @@ export class OdooService {
         throw new Error(`User with ID ${userId} not found`);
       }
 
-      const odooTemplates = await this.client.searchRead('survey.survey', [], {
+      const odooTemplates = await this.client.searchRead("survey.survey", [], {
         fields: [
-          'id',
-          'title',
-          'description',
-          'user_id',
-          'create_date',
-          'write_date',
+          "id",
+          "title",
+          "description",
+          "user_id",
+          "create_date",
+          "write_date",
         ],
       });
 
@@ -88,11 +154,11 @@ export class OdooService {
           });
 
           const odooQuestions = await this.client.searchRead(
-            'survey.question',
-            [['survey_id', '=', odooTemplate.id]],
+            "survey.question",
+            [["survey_id", "=", odooTemplate.id]],
             {
-              fields: ['id', 'title', 'question_type', 'sequence'],
-            },
+              fields: ["id", "title", "question_type", "sequence"],
+            }
           );
 
           for (const odooQuestion of odooQuestions as any[]) {
@@ -100,7 +166,7 @@ export class OdooService {
               data: {
                 title: odooQuestion.title,
                 type: this.mapOdooQuestionType(
-                  odooQuestion.question_type,
+                  odooQuestion.question_type
                 ) as any,
                 isRequired: false,
                 order: odooQuestion.sequence || 1,
@@ -129,16 +195,16 @@ export class OdooService {
 
   private mapOdooQuestionType(odooType: string): string {
     const typeMapping: { [key: string]: string } = {
-      text: 'text',
-      comment: 'comment',
-      radiogroup: 'radiogroup',
-      checkbox: 'checkbox',
-      email: 'email',
-      number: 'number',
-      file: 'file',
+      text: "text",
+      comment: "comment",
+      radiogroup: "radiogroup",
+      checkbox: "checkbox",
+      email: "email",
+      number: "number",
+      file: "file",
     };
 
-    return typeMapping[odooType] || 'text';
+    return typeMapping[odooType] || "text";
   }
 
   async exportFormToOdoo(formId: number) {
@@ -148,7 +214,7 @@ export class OdooService {
         where: { id: formId },
         include: {
           questions: {
-            orderBy: { order: 'asc' },
+            orderBy: { order: "asc" },
           },
         },
       });
@@ -166,8 +232,8 @@ export class OdooService {
       };
 
       const odooSurveyId = await this.client.create(
-        'survey.survey',
-        surveyData,
+        "survey.survey",
+        surveyData
       );
 
       for (const question of form.questions) {
@@ -179,10 +245,10 @@ export class OdooService {
             sequence: question.order,
           };
 
-          await this.client.create('survey.question', questionData);
+          await this.client.create("survey.question", questionData);
         } catch (error) {
           console.log(
-            `Failed to create question with question_type, trying without it...`,
+            `Failed to create question with question_type, trying without it...`
           );
 
           const questionData = {
@@ -191,13 +257,13 @@ export class OdooService {
             sequence: question.order,
           };
 
-          await this.client.create('survey.question', questionData);
+          await this.client.create("survey.question", questionData);
         }
       }
 
       return {
         odooSurveyId,
-        message: 'Form successfully created in Odoo',
+        message: "Form successfully created in Odoo",
         formTitle: form.title,
         questionsCount: form.questions.length,
       };
@@ -208,14 +274,14 @@ export class OdooService {
 
   private mapLocalQuestionType(localType: string): string {
     const typeMapping: { [key: string]: string } = {
-      text: 'char_box',
-      comment: 'text_box',
-      radiogroup: 'simple_choice',
-      checkbox: 'multiple_choice',
-      email: 'char_box',
-      number: 'numerical_box',
-      file: 'char_box',
+      text: "char_box",
+      comment: "text_box",
+      radiogroup: "simple_choice",
+      checkbox: "multiple_choice",
+      email: "char_box",
+      number: "numerical_box",
+      file: "char_box",
     };
-    return typeMapping[localType] || 'char_box';
+    return typeMapping[localType] || "char_box";
   }
 }
