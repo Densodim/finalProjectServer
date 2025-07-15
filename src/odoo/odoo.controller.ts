@@ -1,4 +1,11 @@
-import { Body, Controller, Get, Post, Param } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Param,
+  ParseIntPipe,
+} from "@nestjs/common";
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { OdooService } from "./odoo.service";
 import { ExportToOdooDto } from "./dto/export-to-odoo.dto";
@@ -121,5 +128,22 @@ export class OdooController {
   })
   async exportToOdoo(@Body() body: ExportToOdooDto) {
     return this.odooService.exportFormToOdoo(body.formId);
+  }
+
+  @Get("survey/:id/responses")
+  @ApiOperation({
+    summary: "Get survey responses from Odoo",
+    description: "Returns all responses for a specific survey",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Survey responses successfully retrieved",
+  })
+  @ApiResponse({
+    status: 404,
+    description: "Survey not found",
+  })
+  getSurveyResponses(@Param("id", ParseIntPipe) id: string) {
+    return this.odooService.getSurveyResponses(Number(id));
   }
 }
