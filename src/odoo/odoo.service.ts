@@ -3,6 +3,7 @@ import { OdooAuthenticationError, OdooClient, OdooError } from "odoo-xmlrpc-ts";
 import { ConfigService } from "@nestjs/config";
 import { PrismaService } from "../prisma/prisma.service";
 import { DropboxService } from "../dropbox/dropbox.service";
+import { log } from "console";
 
 @Injectable()
 export class OdooService {
@@ -323,9 +324,18 @@ export class OdooService {
           "survey.user_input.line",
           [["user_input_id", "=", input.id]],
           {
-            fields: ["id", "question_id"],
+            fields: [
+              "id",
+              "display_name",
+              "skipped",
+              "answer_type",
+              "suggested_answer_id",
+              "create_date",
+              "write_date",
+            ],
           }
         );
+
         responses.push({
           userInput: input,
           answers,
