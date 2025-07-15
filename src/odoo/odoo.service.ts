@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { OdooAuthenticationError, OdooClient, OdooError } from "odoo-xmlrpc-ts";
 import { ConfigService } from "@nestjs/config";
 import { PrismaService } from "../prisma/prisma.service";
+import { DropboxService } from "../dropbox/dropbox.service";
 
 @Injectable()
 export class OdooService {
@@ -9,7 +10,8 @@ export class OdooService {
 
   constructor(
     private readonly configService: ConfigService,
-    private readonly prisma: PrismaService
+    private readonly prisma: PrismaService,
+    private readonly dropboxService: DropboxService
   ) {
     this.client = new OdooClient({
       url: this.configService.get<string>("ODOO_URL") || "",
@@ -207,12 +209,11 @@ export class OdooService {
         throw new Error(`Form with ID ${formId} not found`);
       }
 
-      // Create survey in Odoo
       const surveyData = {
         title: form.title,
         description:
           form.description || `Exported from local system (ID: ${form.id})`,
-        user_id: 1, // Odoo user ID (can be configured)
+        user_id: 1,
       };
 
       const odooSurveyId = await this.client.create(
@@ -292,7 +293,6 @@ export class OdooService {
       const surveyData = survey[0] as any;
       const odooUrl = this.configService.get<string>("ODOO_URL") || "";
 
-      // Формируем ссылку на опрос в формате Odoo
       const surveyLink = `${odooUrl}/survey/start/${surveyData.access_token}`;
 
       return {
@@ -301,6 +301,45 @@ export class OdooService {
         surveyLink: surveyLink,
         accessToken: surveyData.access_token,
       };
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  async getSurveyResponses(surveyId: number) {
+    try {
+      const userInputs = await this.client.searchRead(
+        "survey.user_input",
+        [["survey_id", "=", surveyId]],
+        {
+          fields: ["id", "survey_id", "state", "create_date", "partner_id"],
+          limit: 10,
+        }
+      );
+
+      const responses: Array<{ userInput: any; answers: any[] }> = [];
+      for (const input of userInputs as any[]) {
+        const answers = await this.client.searchRead(
+          "survey.user_input.line",
+          [["user_input_id", "=", input.id]],
+          {
+            fields: ["id", "question_id"],
+          }
+        );
+        responses.push({
+          userInput: input,
+          answers,
+        });
+      }
+
+      const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+      const filename = `survey-${surveyId}-responses-${timestamp}.json`;
+      const dropboxResult = await this.dropboxService.uploadJson(
+        filename,
+        responses
+      );
+
+      return { responses, dropbox: dropboxResult };
     } catch (error) {
       this.handleError(error);
     }

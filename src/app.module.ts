@@ -18,6 +18,7 @@ import { MeiliSearchModule } from 'nestjs-meilisearch';
 import { SalesforceModule } from './salesforce/salesforce.module';
 import { OdooModule } from './odoo/odoo.module';
 import { ExternalModule } from './external/external.module';
+import { DropboxModule } from './dropbox/dropbox.module';
 
 @Module({
   controllers: [AppController],
@@ -48,6 +49,7 @@ import { ExternalModule } from './external/external.module';
     SalesforceModule,
     OdooModule,
     ExternalModule,
+    DropboxModule,
   ],
 })
 export class AppModule {}
