@@ -14,6 +14,8 @@ import { LoginDto } from './dto/login.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { UsersService } from '../users/users.service';
 import { AuthEntities } from './entities/auth.entities';
+import { FirebaseAuthDto } from './dto/firebase-auth.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -43,5 +45,38 @@ export class AuthController {
   @Get('me')
   async me(@Req() req: { user: UserEntity }) {
     return this.authService.me(req.user.id);
+  }
+
+  @Post('firebase')
+  @ApiOkResponse({
+    description: 'Firebase authentication successful',
+    schema: {
+      properties: {
+        user: { type: 'object' },
+        accessToken: { type: 'string' },
+        refreshToken: { type: 'string' },
+        expiresIn: { type: 'number' },
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({ description: 'Invalid Firebase token' })
+  async firebaseAuth(@Body() dto: FirebaseAuthDto) {
+    return this.authService.firebaseAuth(dto);
+  }
+
+  @Post('refresh')
+  @ApiOkResponse({
+    description: 'Token refresh successful',
+    schema: {
+      properties: {
+        accessToken: { type: 'string' },
+        refreshToken: { type: 'string' },
+        expiresIn: { type: 'number' },
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({ description: 'Invalid refresh token' })
+  async refreshToken(@Body() dto: RefreshTokenDto) {
+    return this.authService.refreshAccessToken(dto.refreshToken);
   }
 }

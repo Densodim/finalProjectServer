@@ -19,6 +19,7 @@ import { SalesforceModule } from './salesforce/salesforce.module';
 import { OdooModule } from './odoo/odoo.module';
 import { ExternalModule } from './external/external.module';
 import { DropboxModule } from './dropbox/dropbox.module';
+import { FirebaseModule } from './firebase/firebase.module';
 
 @Module({
   controllers: [AppController],
@@ -46,6 +47,7 @@ import { DropboxModule } from './dropbox/dropbox.module';
         apiKey: configService.get<string>('MEILI_API_KEY') ?? '',
       }),
     }),
+    FirebaseModule,
     SalesforceModule,
     OdooModule,
     ExternalModule,

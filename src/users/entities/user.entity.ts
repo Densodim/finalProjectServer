@@ -11,8 +11,8 @@ export class UserEntity implements User {
   @ApiProperty()
   email: string;
 
-  @ApiProperty()
-  password: string;
+  @ApiProperty({ required: false, nullable: true })
+  password: string | null;
 
   @ApiProperty({ enum: UserRole })
   role: UserRole;
@@ -29,6 +29,18 @@ export class UserEntity implements User {
   @ApiProperty()
   updatedAt: Date;
 
-  @ApiProperty({ required: false })
-  apiToken: string;
+  @ApiProperty({ required: false, nullable: true })
+  apiToken: string | null;
+
+  @ApiProperty({ required: false, nullable: true })
+  firebaseUid: string | null;
+
+  @ApiProperty({ required: false, nullable: true })
+  providerId: string | null;
+
+  @ApiProperty({ required: false, nullable: true })
+  photoURL: string | null;
+
+  @ApiProperty({ required: false, nullable: true })
+  refreshToken: string | null;
 }

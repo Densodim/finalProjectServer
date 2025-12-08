@@ -36,6 +36,7 @@
     "class-validator": "^0.14.2",
     "cors": "^2.8.5",
     "dropbox": "^10.34.0",
+    "firebase-admin": "^13.6.0",
     "jsforce": "^3.9.1",
     "meilisearch": "^0.51.0",
     "nestjs-cloudinary": "^2.1.1",
